@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs><linearGradient id="blue" x1="0" y1="0" x2="0.75" y2="1"><stop stop-color="#60c7ff"/><stop offset="1" stop-color="#1878e8"/></linearGradient></defs>
+  <path d="M96 16H152Q166 16 166 30V82H218Q232 82 232 96V148Q232 162 218 162H166V214Q166 228 152 228H96Q82 228 82 214V162H30Q16 162 16 148V96Q16 82 30 82H82V30Q82 16 96 16Z" fill="url(#blue)" stroke="#0b386e" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M110 55L124 41L138 55M55 108L41 122L55 136M193 108L207 122L193 136M110 189L124 203L138 189" fill="none" stroke="#d9f3ff" stroke-opacity="0.8" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="124" cy="122" r="20" fill="#1269bc" stroke="#8cdaff" stroke-width="4"/>
+  <!-- Outlined lowercase letters work without an installed font. -->
+  <rect x="158" y="178" width="90" height="62" rx="16" fill="#0a203a" stroke="#6bceff" stroke-width="4"/>
+  <path d="M172 221V200M172 204C172 197 183 197 183 204V221M183 204C183 197 194 197 194 204V221M233 202C225 195 207 198 210 207C212 213 230 209 231 217C232 225 213 227 207 220" fill="none" stroke="#e4f7ff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

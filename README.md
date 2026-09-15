@@ -5,7 +5,7 @@ A small Windows app for comparing controller reaction times. Pick a device, wait
 ## Download and run — no coding required
 
 1. Open **Releases** on the right of this GitHub page.
-2. Download **Blues-Controller-Latency-and-Reaction-Tester-v1.0.0-windows-x64.zip** from **Assets**. The automatically generated "Source code" downloads are for editing the project.
+2. Download **Blues-Controller-Latency-and-Reaction-Tester-v1.01-windows-x64.zip** from **Assets**. The automatically generated "Source code" downloads are for editing the project.
 3. Right-click the downloaded ZIP and choose **Extract All**.
 4. Open the extracted folder and double-click **BluesControllerLatencyAndReactionTester.exe**.
 

@@ -22,7 +22,9 @@ The interface has no scrolling. Arrow buttons page through five results at a tim
 Click a row's trash icon to remove that one benchmark from the leaderboard. **Undo trash** restores the most recently trashed result in the current session. This is reversible soft deletion: the JSON file moves into `results/trash`; it is not permanently deleted. Older trashed results remain there across restarts and can be restored manually by moving their JSON files back into results. A filename collision causes an error rather than overwriting either file.
 
 Use Open results folder to open:
-`%APPDATA%\Godot\app_userdata\Latency Tester\results`
+`%LOCALAPPDATA%\LatencyTester\results`
+
+The app stores its settings in `%LOCALAPPDATA%\LatencyTester\settings.cfg`. It remembers the trial count, fullscreen option and VSync option between launches. When moving from the older development version, the app makes a one-time copy of existing results and the `trash` folder from `%APPDATA%\Godot\app_userdata\Latency Tester\results`. The original files stay where they are, and a matching filename is never overwritten. New results use the LocalAppData folder shown above.
 
 Each completed run has a separate JSON file. Duplicate names remain separate entries. The files contain individual times, mean/median/best/worst/standard deviation, early-press/timeout counts, device metadata, the input used for each scored trial, display settings, engine version and frame interval statistics. Older results from the binding-based version still load.
 

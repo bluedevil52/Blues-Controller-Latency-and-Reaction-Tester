@@ -115,3 +115,9 @@ Verification: 54 regression checks and 27 rendered UI checks passed with zero fa
 Created an embedded-data Windows x86-64 executable and a reusable export preset/build script. The first export omitted benchmark_store.gd; explicitly listing all three runtime resources corrected it. The corrected executable passed headless startup from outside the project and its real window was visually inspected with the existing leaderboard. The headless regression suite passed all 54 checks. An attempt to inject the rendered QA script into the release executable did not complete and is not counted as passing coverage; prior rendered UI checks remain source-build evidence.
 
 The release ZIP contains the executable, beginner instructions and Godot third-party license notices. Source publishing excludes local results, backups, logs, generated screenshots, downloaded tools and machine-specific editor paths. Nothing was deleted. A new desktop shortcut opens the standalone copy; the previous development shortcut remains.
+
+## LocalAppData storage update
+
+Production results now use %LOCALAPPDATA%\LatencyTester\results and trial-count/fullscreen/VSync preferences use settings.cfg in the parent folder. On first launch, legacy active and trashed JSON results are copied without overwriting destination files or deleting originals. A completion marker prevents repeated imports. Tests override paths and do not alter real preferences. Godot's separate engine user directory is named LatencyTester rather than Godot/app_userdata.
+
+Verified: 54 regression checks and 19 migration/settings checks passed. The rebuilt standalone executable passed startup; the desktop shortcut now targets release/build-20260915-134045-354. GitHub has not been updated for this change.

@@ -49,9 +49,10 @@ var run_device: Dictionary = {}
 var pending_record: Dictionary = {}
 var frame_times: Array = []
 var records: Array = []
-# user:// is Godot's writable app-data directory. Tests replace this path with
-# their own temporary fixture directory so they never touch real results.
-var results_folder := "user://results"
+# Windows uses LocalAppData/LatencyTester. Tests supply their own fixture folder
+# so they never load real results, run migration, or alter real preferences.
+var results_folder := "" # Empty selects normal storage; tests supply an isolated folder.
+var settings_path := ""
 # Page indexes start at zero internally; captions display human-friendly counts.
 var board_page := 0
 var trial_page := 0
@@ -92,6 +93,13 @@ var cue_detail: Label
 var cue_progress: Label
 
 func _ready() -> void:
+	var storage_error := ""
+	if results_folder.is_empty():
+		var base := Store.data_folder()
+		results_folder = base.path_join("results")
+		settings_path = base.path_join("settings.cfg")
+		var legacy := OS.get_environment("APPDATA").path_join("Godot/app_userdata/Latency Tester/results")
+		storage_error = Store.migrate_results(base, legacy)
 	# Don't merge input events until the next frame. This reduces avoidable delay,
 	# but it cannot remove delays in the controller, OS, renderer or monitor.
 	Input.use_accumulated_input = false
@@ -100,10 +108,46 @@ func _ready() -> void:
 	_build_ui()
 	_refresh_devices()
 	_refresh_board()
+	_load_settings()
+	count_edit.value_changed.connect(func(_value: float) -> void: _save_settings())
+	fullscreen_check.toggled.connect(func(_value: bool) -> void: _save_settings())
+	vsync_check.toggled.connect(func(_value: bool) -> void: _save_settings())
+	if not storage_error.is_empty():
+		_set_notice(storage_error)
 	# Signals are notifications: connect() says which function should receive one.
 	Input.joy_connection_changed.connect(_device_changed)
 	RenderingServer.frame_pre_draw.connect(_before_draw)
 	get_window().focus_exited.connect(_focus_lost)
+
+func _load_settings() -> void:
+	# Test instances leave this empty, so they cannot change your preferences.
+	if settings_path.is_empty():
+		return
+	var config := ConfigFile.new()
+	if config.load(settings_path) != OK:
+		return
+	var trials = config.get_value("benchmark", "trials", 10)
+	if trials is int or trials is float:
+		count_edit.value = clampi(int(trials), 1, 200)
+	var fullscreen = config.get_value("benchmark", "fullscreen", true)
+	var vsync = config.get_value("benchmark", "vsync", false)
+	if fullscreen is bool:
+		fullscreen_check.button_pressed = fullscreen
+	if vsync is bool:
+		vsync_check.button_pressed = vsync
+
+func _save_settings() -> void:
+	if settings_path.is_empty():
+		return
+	var config := ConfigFile.new()
+	config.set_value("benchmark", "trials", int(count_edit.value))
+	config.set_value("benchmark", "fullscreen", fullscreen_check.button_pressed)
+	config.set_value("benchmark", "vsync", vsync_check.button_pressed)
+	var error := DirAccess.make_dir_recursive_absolute(settings_path.get_base_dir())
+	if error == OK:
+		error = config.save(settings_path)
+	if error != OK:
+		_set_notice("Could not save settings. Your benchmark results are unaffected.")
 
 func _label(text: String, size: int = 16, color: Color = Color.WHITE) -> Label:
 	# A factory helper keeps shared text styling in one place.

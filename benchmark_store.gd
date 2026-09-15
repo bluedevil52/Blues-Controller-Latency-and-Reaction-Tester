@@ -1,4 +1,45 @@
 extends RefCounted
+
+static func data_folder() -> String:
+	# LOCALAPPDATA expands to the current Windows user's Local folder, without
+	# embedding a username or depending on where the executable was downloaded.
+	var local := OS.get_environment("LOCALAPPDATA")
+	if local.is_empty():
+		local = OS.get_data_dir()
+	return local.path_join("LatencyTester")
+
+static func migrate_results(base: String, legacy: String) -> String:
+	# Copy once, never move/delete the old data. The marker prevents an old result
+	# from reappearing after you later trash its migrated copy in the new folder.
+	var marker := base.path_join("legacy_migration_complete")
+	if FileAccess.file_exists(marker):
+		return ""
+	if DirAccess.make_dir_recursive_absolute(base.path_join("results")) != OK:
+		return "Could not create the new results folder. Original results are unchanged."
+	for subfolder in ["", "trash"]:
+		var source := legacy.path_join(subfolder)
+		if not DirAccess.dir_exists_absolute(source):
+			continue
+		var directory := DirAccess.open(source)
+		if directory == null:
+			return "Could not read old results. Migration will retry next launch."
+		var destination := base.path_join("results").path_join(subfolder)
+		if DirAccess.make_dir_recursive_absolute(destination) != OK:
+			return "Could not copy old results. Migration will retry next launch."
+		for filename in directory.get_files():
+			if filename.get_extension().to_lower() != "json":
+				continue
+			var target := destination.path_join(filename)
+			# Never replace a result already present at the destination.
+			if FileAccess.file_exists(target):
+				continue
+			if DirAccess.copy_absolute(source.path_join(filename), target) != OK:
+				return "Could not copy old results. Originals are safe; migration will retry next launch."
+	var completed := FileAccess.open(marker, FileAccess.WRITE)
+	if completed == null:
+		return "Results copied, but migration could not be marked complete."
+	completed.store_string("Legacy results copied; original files retained.\n")
+	return ""
 ## STORAGE AND MATH — independent of the user interface.
 ## RefCounted objects are freed automatically when no references remain.
 ## These functions are static: callers use Store.statistics(...) without creating
@@ -27,7 +68,9 @@ static func statistics(values: Array) -> Dictionary:
 		median = (float(ordered[int(middle) - 1]) + median) / 2.0
 	return {"mean_ms": mean, "median_ms": median, "best_ms": ordered[0], "worst_ms": ordered[-1], "stddev_ms": sqrt(variance / ordered.size())}
 
-static func save_run(record: Dictionary, folder: String = "user://results") -> String:
+static func save_run(record: Dictionary, folder: String = "") -> String:
+	if folder.is_empty():
+		folder = data_folder().path_join("results")
 	# The returned String is an error message, or "" for success. No exception needed.
 	var error := DirAccess.make_dir_recursive_absolute(folder)
 	if error != OK:
@@ -48,7 +91,9 @@ static func save_run(record: Dictionary, folder: String = "user://results") -> S
 		return "Could not save this result (error %s). Keep the app open and select Retry save." % write_error
 	return ""
 
-static func load_runs(folder: String = "user://results") -> Dictionary:
+static func load_runs(folder: String = "") -> Dictionary:
+	if folder.is_empty():
+		folder = data_folder().path_join("results")
 	# Scan only this directory, not its trash subdirectory. A bad file should never
 	# prevent good results from loading; count and skip it without altering the file.
 	var records: Array = []
@@ -119,11 +164,15 @@ static func _valid_filename(filename: String) -> bool:
 	# Accept a simple JSON basename only, never a path supplied inside saved data.
 	return not filename.is_empty() and filename == filename.get_file() and not filename.contains("\\") and not filename.contains(":") and filename.ends_with(".json")
 
-static func trash_run(filename: String, folder: String = "user://results") -> String:
+static func trash_run(filename: String, folder: String = "") -> String:
+	if folder.is_empty():
+		folder = data_folder().path_join("results")
 	# Soft deletion: move into our trash folder. There is no permanent-delete call.
 	return _relocate_run(filename, folder, false)
 
-static func restore_run(filename: String, folder: String = "user://results") -> String:
+static func restore_run(filename: String, folder: String = "") -> String:
+	if folder.is_empty():
+		folder = data_folder().path_join("results")
 	# The reverse operation uses the same path checks as trashing.
 	return _relocate_run(filename, folder, true)
 

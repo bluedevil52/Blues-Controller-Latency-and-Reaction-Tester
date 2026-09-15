@@ -5,7 +5,7 @@ A small Windows app for comparing controller reaction times. Pick a device, wait
 ## Download and run — no coding required
 
 1. Open **Releases** on the right of this GitHub page.
-2. Download **Blues-Controller-Latency-and-Reaction-Tester-v1.01-windows-x64.zip** from **Assets**. The automatically generated "Source code" downloads are for editing the project.
+2. Download **Blues-Controller-Latency-and-Reaction-Tester-v1.1-windows-x64.zip** from **Assets**. The automatically generated "Source code" downloads are for editing the project.
 3. Right-click the downloaded ZIP and choose **Extract All**.
 4. Open the extracted folder and double-click **BluesControllerLatencyAndReactionTester.exe**.
 
@@ -27,10 +27,10 @@ This measures **your reaction time plus display and input delays**, not isolated
 Results stay on your PC in:
 
 ```text
-%APPDATA%\Godot\app_userdata\Latency Tester\results
+%LOCALAPPDATA%\LatencyTester\results
 ```
 
-Paste that path into File Explorer's address bar, or click **Open results folder** in the app. Existing results from the development version remain available. Trashing a result moves its file into a `trash` subfolder; it does not permanently delete it. Results and local backups are not included in this repository or the download.
+Paste that path into File Explorer's address bar, or click **Open results folder** in the app. Settings are stored next to it in `%LOCALAPPDATA%\LatencyTester\settings.cfg`; the app remembers the trial count, fullscreen option and VSync option. On first launch after this change, existing results and the `trash` folder are copied from the older Godot location into the new folder. The originals are kept, and files are never overwritten if a name already exists. Trashing a result moves its file into the new `trash` subfolder; it does not permanently delete it. Results and local backups are not included in this repository or the download.
 
 Read [START HERE.md](START%20HERE.md) for the full user guide and [CODE_GUIDE.md](CODE_GUIDE.md) for a beginner's tour of the code.
 
